@@ -4,14 +4,17 @@ import React, { useState } from 'react'
 import { Container, Dropdown, Modal } from 'react-bootstrap'
 import { useConversation } from './ConversationProvider';
 import { URL } from './config';
+import { useSocket } from './SocketProvider';
 
-export default function ChatHeader({ typing }) {
+export default function ChatHeader({ typing, stopTyping }) {
     const [showDetailsModal, setShowDetailsModal] = useState(false);
     const { activeConversation: conversation, setConversations, selectConversation, setContacts, myProfile } = useConversation();
+    const { socket } = useSocket();
     function closeModal() {
         setShowDetailsModal(false);
     }
-    function exitChat(){
+    function exitChat() {
+        stopTyping();
         selectConversation(null);
     }
     function clearChat() {
@@ -46,16 +49,21 @@ export default function ChatHeader({ typing }) {
         setConversations(prev => prev.filter(conv => conv.id !== conversation.id));
     }
 
-    let status = conversation.status;
-    let date = new Date(conversation.status).toLocaleTimeString('en-US', { hour: 'numeric', hour12: true, minute: '2-digit' });
-    status = date === 'Invalid Date' ? status : date;
+    function getDisplayStatus() {
+        let status = conversation.status;
+        if(status === 'Online') return 'Online';
+        let time = new Date(conversation.status).toLocaleTimeString('en-US', { hour: 'numeric', hour12: true, minute: '2-digit' });
+        let date = new Date(conversation.status);
+        return date.setHours(0, 0, 0, 0) < new Date().setHours(0, 0, 0, 0) ? date.toLocaleDateString("en-GB") : time;
+    }
+    let status = getDisplayStatus();
 
     return (
         <>
             {conversation &&
                 <>
                     <div className='shadow py-3 d-flex w-100 px-4 align-items-center' style={{ width: "100%" }}>
-                        <FontAwesomeIcon onClick={exitChat} icon={faArrowLeft} className='p-2 me-2 rounded-circle' style={{background: '#ddd', cursor: 'pointer'}} />
+                        <FontAwesomeIcon onClick={exitChat} icon={faArrowLeft} className='p-2 me-2 rounded-circle' style={{ background: '#ddd', cursor: 'pointer' }} />
                         <div className='me-3' style={{ fontSize: '40px' }}>{conversation.dp}</div>
                         <div onClick={fetchAndShowDetails} className='flex-grow-1' style={{ cursor: 'pointer' }}>
                             <div className='fs-4' style={{ fontWeight: 500 }}>{conversation.name}</div>

@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Button, Container, Form, ListGroup } from 'react-bootstrap'
 import Header from './Header';
 import { Modal } from 'react-bootstrap';
@@ -7,6 +7,8 @@ import { useSocket } from './SocketProvider';
 
 export default function Sidebar() {
     const [showNewContactModal, setShowNewContactModal] = useState(false);
+    const [filtered, setFiltered] = useState('');
+    const [filteredContacts, setFilteredContacts] = useState();
     const { createContact, conversations, activeConversation, selectConversation, myProfile } = useConversation();
     const { socket } = useSocket();
     function closeModal() { setShowNewContactModal(false) }
@@ -18,15 +20,28 @@ export default function Sidebar() {
         closeModal();
     }
     function changeConversation(idx, id) {
-        socket.emit('blue-tick', {recipient: id, sender: myProfile.id});
+        if (activeConversation) socket.emit('stop-typing', { recipient: activeConversation.id });
+        socket.emit('blue-tick', { recipient: id, sender: myProfile.id });
         selectConversation(idx);
     }
+    useEffect(() => {
+        if(filtered === '') return () => {};
+        let filteredConv = conversations.filter(c => c.id.toLowerCase().includes(filtered) || c.name.toLowerCase().includes(filtered));
+        setFilteredContacts(filteredConv);
+    }, [filtered])
+
     return (
         <>
             <div className='d-flex flex-column h-100 border shadow-sm' style={{ width: '400px' }}>
-                <Header openModal={openModal} />
+                <Header openModal={openModal} setFiltered={setFiltered} />
                 <ListGroup className='flex-grow-1'>
-                    {conversations && conversations.map((conversation, idx) => (
+                    {filtered !== '' && filteredContacts ? filteredContacts.map((conversation, idx) => (
+                        <ListGroup.Item className='py-2 d-flex align-items-center' style={{ cursor: 'pointer', background: conversation === activeConversation ? 'rgba(200, 200, 255)' : '' }} onClick={() => changeConversation(idx, conversation.id)} key={idx}>
+                            <div className='fs-2'>{conversation.dp}</div>
+                            <div className='ps-3'>{conversation.name}</div>
+                        </ListGroup.Item>
+                    )):
+                    conversations && conversations.map((conversation, idx) => (
                         <ListGroup.Item className='py-2 d-flex align-items-center' style={{ cursor: 'pointer', background: conversation === activeConversation ? 'rgba(200, 200, 255)' : '' }} onClick={() => changeConversation(idx, conversation.id)} key={idx}>
                             <div className='fs-2'>{conversation.dp}</div>
                             <div className='ps-3'>{conversation.name}</div>

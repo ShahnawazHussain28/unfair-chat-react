@@ -33,33 +33,33 @@ export default function ConversationProvider({ children, myProfile, setMyProfile
     }, [conversations]);
 
     useEffect(() => {
-        if(!socket) return () => {};
+        if (!socket) return () => { };
         let isInChat = activeConversationIdx !== null && activeConversationIdx !== -1;
         let id = isInChat ? conversations[activeConversationIdx].id : "No One";
         let name = isInChat ? conversations[activeConversationIdx].name : "";
-        socket.emit('set-talking-to', {talkingId: id, talkingName: name})
+        socket.emit('set-talking-to', { talkingId: id, talkingName: name })
     }, [activeConversationIdx])
 
     function createContact(id) {
         let ids = conversations.map(conv => conv.id);
         if (ids.includes(id)) {
-            console.log("Contact already exists");
+            alert("Contact already exists");
             return;
         }
         fetch(URL + "get-details/" + id).then(data => data.json().then(({ name, dp, status, talkingTo }) => {
             setConversations(prev => {
                 setContacts(cont => [...cont, id]);
-                if(activeConversationIdx !== null) setActiveConversationIdx(p => p+1);
+                if (activeConversationIdx !== null) setActiveConversationIdx(p => p + 1);
                 return [{ id, name, dp, status, talkingTo, msg: [], seen: 0 }, ...prev]
             });
         }))
     }
-    function updateBlueTick(sender){
-        if(!contacts.includes(sender)) return;
+    function updateBlueTick(sender) {
+        if (!contacts.includes(sender)) return;
         setConversations(prev => {
             let newConv = [...prev];
-            for(let i = 0; i < newConv.length; i++){
-                if(newConv[i].id === sender){
+            for (let i = 0; i < newConv.length; i++) {
+                if (newConv[i].id === sender) {
                     newConv[i].seen = 0;
                     break;
                 }
@@ -104,7 +104,7 @@ export default function ConversationProvider({ children, myProfile, setMyProfile
                 let newConversations = prev.map((conv, i) => {
                     if (conv.id === id) {
                         idx = i;
-                        return { ...conv, msg: [msg, ...conv.msg], seen: conv.seen+1 };
+                        return { ...conv, msg: [msg, ...conv.msg], seen: conv.seen + 1 };
                     }
                     return conv;
                 })
@@ -116,15 +116,15 @@ export default function ConversationProvider({ children, myProfile, setMyProfile
                     if (msg.fromMe) currChatIdx = 0;
                     else if (currChatIdx === idx) {
                         currChatIdx = 0;
-                        socket.emit('blue-tick', {recipient: id, sender: myProfile.id});
-                    } else if (idx > currChatIdx) 
+                        socket.emit('blue-tick', { recipient: id, sender: myProfile.id });
+                    } else if (idx > currChatIdx)
                         currChatIdx++;
                     setActiveConversationIdx(currChatIdx);
                 }
                 return newConversations;
             })
         }
-    }, [activeConversationIdx])
+    }, [activeConversationIdx, contacts])
 
     useEffect(() => {
         if (socket == null) return () => { }
@@ -134,7 +134,7 @@ export default function ConversationProvider({ children, myProfile, setMyProfile
         });
         socket.on('online-status', ({ id, online }) => {
             if (contacts.includes(id)) {
-                let status = online ? "Online" : new Date().toLocaleTimeString('en-US', { hour: 'numeric', hour12: true, minute: '2-digit' })
+                let status = online ? "Online" : new Date();
                 setConversations(prev =>
                     prev.map(conv => {
                         if (conv.id === id) return { ...conv, status }
@@ -143,9 +143,13 @@ export default function ConversationProvider({ children, myProfile, setMyProfile
                 )
             }
         })
+        socket.on('blue-tick-update', ({ sender }) => {
+            updateBlueTick(sender)
+        })
         return () => {
             socket.off('receive-message');
             socket.off('online-status');
+            socket.off('blue-tick-update');
         }
     }, [socket, addMsgToConversation])
 
