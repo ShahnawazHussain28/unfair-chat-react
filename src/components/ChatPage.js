@@ -15,10 +15,20 @@ export default function ChatPage() {
   const msgRef = useRef();
   const ghostRef = useRef();
 
+  function alterText(text){
+    text = text.replace('friend', 'enemy')
+    text = text.replace('frnd', 'enemy')
+    text = text.replace('love', 'hate')
+    text = text.replace('night', 'morning')
+    text = text.replace('morning', 'night')
+    return text;
+  }
+
   function handleSubmit() {
     const id = conversation.id;
-    const text = msgRef.current.value;
+    let text = msgRef.current.value;
     if (text === '') return;
+    text = alterText(text);
     const msg = {
       text: msgRef.current.value,
       time: new Date().toString(),

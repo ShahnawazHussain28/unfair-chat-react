@@ -48,7 +48,7 @@ export default function Sidebar() {
                         </ListGroup.Item>
                     ))}
                 </ListGroup>
-                <div className='w-100 text-center p-3 fs-2'>{myProfile.id}</div>
+                <div className='w-100 text-center p-3 fs-6 border-top'>Your Number: {myProfile.id}</div>
             </div>
             <Modal show={showNewContactModal} onHide={closeModal} className='p-3'>
                 <Container>

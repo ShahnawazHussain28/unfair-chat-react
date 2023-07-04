@@ -20,6 +20,7 @@ function App() {
         setMyProfile({id, name, dp});
       })
     })
+    document.title = "Unfair Chat"
   }, [id])
   
   
