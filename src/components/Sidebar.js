@@ -3,39 +3,37 @@ import { Button, Container, Form, ListGroup } from 'react-bootstrap'
 import Header from './Header';
 import { Modal } from 'react-bootstrap';
 import { useConversation } from './ConversationProvider';
+import { useSocket } from './SocketProvider';
 
 export default function Sidebar() {
     const [showNewContactModal, setShowNewContactModal] = useState(false);
-    const { createContact, conversations, activeConversation, selectConversation } = useConversation();
+    const { createContact, conversations, activeConversation, selectConversation, myProfile } = useConversation();
+    const { socket } = useSocket();
     function closeModal() { setShowNewContactModal(false) }
     function openModal() { setShowNewContactModal(true) }
     const idRef = useRef()
-    const nameRef = useRef()
     function handleSubmit(e) {
         e.preventDefault();
-        createContact(idRef.current.value, nameRef.current.value);
+        createContact(idRef.current.value);
         closeModal();
     }
-    function setActiveConversation(id) {
-        for (let i = 0; i < conversations.length; i++) {
-            if (conversations[i].id === id) {
-                selectConversation(i);
-                break;
-            }
-        }
+    function changeConversation(idx, id) {
+        socket.emit('blue-tick', {recipient: id, sender: myProfile.id});
+        selectConversation(idx);
     }
     return (
         <>
             <div className='d-flex flex-column h-100 border shadow-sm' style={{ width: '400px' }}>
-                <Header openModal={openModal} closeModal={closeModal} />
+                <Header openModal={openModal} />
                 <ListGroup className='flex-grow-1'>
-                    {activeConversation !== undefined && conversations.map((conversation, idx) => (
-                        <ListGroup.Item className='py-2 d-flex align-items-center' style={{background: conversation === activeConversation ? 'rgba(200, 200, 255)' : ''}} onClick={() => setActiveConversation(conversation.id)} key={conversation.id}>
-                            <div className='fs-2'>😊</div>
+                    {conversations && conversations.map((conversation, idx) => (
+                        <ListGroup.Item className='py-2 d-flex align-items-center' style={{ cursor: 'pointer', background: conversation === activeConversation ? 'rgba(200, 200, 255)' : '' }} onClick={() => changeConversation(idx, conversation.id)} key={idx}>
+                            <div className='fs-2'>{conversation.dp}</div>
                             <div className='ps-3'>{conversation.name}</div>
                         </ListGroup.Item>
                     ))}
                 </ListGroup>
+                <div className='w-100 text-center p-3 fs-2'>{myProfile.id}</div>
             </div>
             <Modal show={showNewContactModal} onHide={closeModal} className='p-3'>
                 <Container>
@@ -45,10 +43,6 @@ export default function Sidebar() {
                             <Form.Group>
                                 <Form.Label>Mobile Number</Form.Label>
                                 <Form.Control type='tel' maxLength={10} ref={idRef} />
-                            </Form.Group>
-                            <Form.Group>
-                                <Form.Label>Name</Form.Label>
-                                <Form.Control type='text' ref={nameRef} />
                             </Form.Group>
                             <Button type='submit' className='my-4'>Create</Button>
                         </Form>

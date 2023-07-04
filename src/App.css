@@ -40,7 +40,22 @@
 .msg{
   width: fit-content;
   max-width: 80%;
+  display: flex;
 }
 .msg.from-me{
   align-self: flex-end;
+}
+.msg-time{
+  font-size: 0.65rem;
+  align-self: flex-end;
+}
+.msg-tick{
+  align-self: flex-end;
+  margin-left: 5px;
+}
+.emoji{
+  transition: 0.3s;
+}
+.emoji:hover{
+  background-color: rgba(0, 0, 0, 0.1);
 }

@@ -1,7 +1,7 @@
 const express = require("express")
 const bcrypt = require("bcrypt")
 const app = express()
-const server = app.listen(process.env.PORT || 5000)
+const server = app.listen(process.env.PORT || 5000, () => console.log("Listening at PORT " + 5000));
 const cors = require("cors")
 app.use(cors({ origin: "*" }))
 app.use(express.json())
@@ -12,7 +12,7 @@ let users = JSON.parse(data)
 
 const path = require('path');
 
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'build')));
 
 app.get("/announceStatus", (req, res) => {
     const contacts = req.body.contacts
@@ -24,15 +24,17 @@ app.get("/announceStatus", (req, res) => {
 
 app.post("/register", async (req, res) => {
     const number = req.body.id;
+    const name = req.body.name;
     const password = req.body.password;
     const confirmPassword = req.body.confirmPassword;
     users = JSON.parse(fs.readFileSync("users.json"))
-    if (number in users) return res.send({ message: "this number already exist", granted: false })
-    if (password !== confirmPassword) return res.send({ message: "Passwords do not match", granted: false })
+    if (!number || number.length < 10) return res.send({ message: "Please provide a valid phone number", granted: false });
+    if (number in users) return res.send({ message: "This number already exist. Try login", granted: false });
+    if (password !== confirmPassword) return res.send({ message: "Passwords do not match", granted: false });
     else {
         try {
             const hashedPassword = await bcrypt.hash(password, 5)
-            users[number] = { password: hashedPassword , dp: '😒'}
+            users[number] = {name, password: hashedPassword , dp: '😒', status: "Online", talkingTo: {id: "🤷‍♂️", name: "No One"}}
             fs.writeFile("users.json", JSON.stringify(users, null, 2), () => {
                 return res.send({ message: "Successsfully registered your account", granted: true })
             })
@@ -59,24 +61,38 @@ app.post("/login", async (req, res) => {
         return res.send({ message: "Internal Error. Try Again", granted: false })
     }
 })
-app.get("/onlineStatus/:id", (req, res) => {
+app.post("/is-valid-user", async (req, res) => {
+    const number = req.body.id;
+    users = JSON.parse(fs.readFileSync("users.json"))
+    if (!(number in users)) return res.send({ message: "This Number is not Registered. Please Sign Up.", granted: false })
+    return res.send({ message: "This Number is Registered.", granted: true })
+})
+app.get("/online-status/:id", (req, res) => {
     const id = req.params.id
     users = JSON.parse(fs.readFileSync("users.json"))
     if (id in users) {
         return res.send({status: users[id].status})
     }
-    return res.send({})
+    return res.send({status: "Unknown"})
 })
-app.get("/getTalkingTo/:id", (req, res) => {
+app.get("/get-talking-to/:id", (req, res) => {
     const id = req.params.id
     users = JSON.parse(fs.readFileSync("users.json"))
     if (id in users) {
         let talkingto = users[id].talkingTo;
         return res.send({id: talkingto.id, name: talkingto.name});
     }
-    return res.send({})
+    return res.send({id: "🤷‍♂️", name: "No One"});
 })
-app.get("/getdp/:id", (req, res) => {
+app.get("/get-details/:id", (req, res) => {
+    const id = req.params.id
+    users = JSON.parse(fs.readFileSync("users.json"))
+    if (id in users) {
+        return res.send(users[id]);
+    }
+    return res.send({name: "Unknown", dp: "❌", status: "Unknown", talkingTo: {id: "🤷‍♂️", name: "No One"}});
+})
+app.get("/get-dp/:id", (req, res) => {
     const id = req.params.id
     users = JSON.parse(fs.readFileSync("users.json"))
     if (id in users) {
@@ -84,9 +100,8 @@ app.get("/getdp/:id", (req, res) => {
     } else {
         return res.send({dp: '❌'})
     }
-    return res.send({dp: '😒'})
 })
-app.post("/setdp", (req, res) => {
+app.post("/set-dp", (req, res) => {
     const id = req.body.id;
     let dp = req.body.dp;
     if(dp.length > 1) dp = dp[0];
@@ -98,7 +113,7 @@ app.post("/setdp", (req, res) => {
     }
     return res.send({success: false, message: 'Something went wrong'})
 })
-app.post("/deleteAccount", (req, res) => {
+app.post("/delete-account", (req, res) => {
     const id = req.body.id;
     if (id in users) {
         if (delete users[id]){
@@ -128,9 +143,10 @@ io.on('connection', (socket) => {
         socket.emit('error', {type: "relogin", text: "Oops. Login/Signup again"})
         return;
     }
-    users[id].status = "online"
+    users[id].status = "Online"
+    users[id].talkingTo = {id: "No One", name: ""}
     fs.writeFileSync('users.json', JSON.stringify(users, null, 2))
-    io.emit('onlineStatus', {id, online: true})
+    io.emit('online-status', {id, online: true})
     if (id in pending){
         setTimeout(() => {
             pending[id].messages.forEach((message) => {
@@ -185,13 +201,15 @@ io.on('connection', (socket) => {
     })
     socket.on('disconnect', (reason) => {
         users = JSON.parse(fs.readFileSync("users.json"))
-        users[id].status = new Date()
-        users[id].talkingTo = {
-            id: 'Offline',
-            name: "📴"
+        if(id in users) {
+            users[id].status = new Date()
+            users[id].talkingTo = {
+                id: 'Offline',
+                name: "📴"
+            }
         }
-        io.emit('onlineStatus', {id, online: false})
-        fs.writeFileSync("users.json", JSON.stringify(users, null, 2))
+        io.emit('online-status', {id, online: false});
+        fs.writeFileSync("users.json", JSON.stringify(users, null, 2));
     })
     
     
