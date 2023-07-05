@@ -1,70 +1,39 @@
-# Getting Started with Create React App
+# Unfair Chat
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Unfair Chat is a messaging application.
+- **Frontend** made with: ReactJS
+- **Backend end** made with: ReactJS, Express, Socket.io
 
-## Available Scripts
+### How to run this?
+1. To run this application on your PC first clone the repository. <br/>
+  `git clone https://github.com/ShahnawazHussain28/unfair-chat-react.git`
+2. Run `node server.js`
 
-In the project directory, you can run:
+You are good to go. The app should be up and running. If any problem occurs you can make an issue or discuss it with me.
 
-### `npm start`
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+# **Why Unfair?**
+- Along with all the good features, it has some evil features too.
+- You can see in real-time, what the other person is typing before they send the message (or don't send :P).
+- You can see whom the other person is talking to. It shows the name and number of the person that the other person is talking to.
+- Some messages get altered on the way. Love becomes hate and hate becomes love XD.
+- These are enough to start a war and break the relationship with the loved ones.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Features
+- The UI is responsive. Works perfect on PC as well as Android.
+- First of all, you have to create an account in order to start chatting. Don't worry it's pretty easy.
+- Once you are logged in, you can add a phone number to chat with them (If they have an account with that number)
+- You can clear a chat, delete a contact, Log Out, or Delete your account permanently.
+- Messages are stored on your browser's local storage and nowhere else.
+- Change your profile picture (till now it's an emoji instead of a photo).
+- Blue tick or read receipt feature is also present.
+- It shows online, last seen or typing status.
+- If the person is offline then the messages are stored on the server so that when they come online, they can get those messages.
 
-### `npm test`
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Similar Project
+Before making this, I made the exact same app using Vanilla Javascript and not React.
+Link to that project: https://github.com/ShahnawazHussain28/unfair-chat-vanilla/
 
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+**Thank you all for visiting this page. You can find many other Projects on my GitHub. If you feel any confusion or have any queries, don't hesitate to react out to me.**
+# THANK YOU
